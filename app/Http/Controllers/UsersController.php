@@ -101,4 +101,34 @@ class UsersController extends Controller
 
     return Redirect::route('users.index');
   }
+
+  /**
+   * Display deleted (Soft Delete) from users.
+   */
+  public function trashed(Request $request): Response
+  {
+    return Inertia::render('Users/Trashed', [
+      'users' => User::onlyTrashed()->get(),
+    ]);
+  }
+
+  /**
+   * Destroy the user account.
+   */
+  public function destroy(Request $request): RedirectResponse
+  {
+    User::withTrashed()->find($request->user)->forcedelete();
+
+    return Redirect::route('users.trashed');
+  }
+
+  /**
+   * Restore the trashed user.
+   */
+  public function restore(Request $request): RedirectResponse
+  {
+    User::withTrashed()->find($request->user)->restore();
+
+    return Redirect::route('users.trashed');
+  }
 }
