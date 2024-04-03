@@ -45,7 +45,7 @@ class UsersController extends Controller
     }
 
     // Update the User details
-    $request->user()->update($request->all());
+    User::find($request->user)->update($request->all());
 
     return Redirect::route('users.index');
   }
@@ -74,7 +74,7 @@ class UsersController extends Controller
   public function store(UserStoreRequest $request): RedirectResponse
   {
     // Store the User details
-    $request->user()->create([
+    User::create([
       'name' => $request->name,
       'email' => $request->email,
       'password' => Hash::make($request->password),
