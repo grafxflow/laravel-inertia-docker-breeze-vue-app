@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\UserUpdateRequest;
+use App\Http\Requests\UserStoreRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use App\Models\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -47,7 +47,6 @@ class UsersController extends Controller
     // Update the User details
     $request->user()->update($request->all());
 
-    // Redirect to the User Index page
     return Redirect::route('users.index');
   }
 
@@ -72,15 +71,10 @@ class UsersController extends Controller
   /**
    * Store the user account.
    */
-  public function store(Request $request): RedirectResponse
+  public function store(UserStoreRequest $request): RedirectResponse
   {
-    $request->validate([
-      'name' => 'required|string|max:255',
-      'email' => 'required|string|email|max:255|unique:' . User::class,
-      'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    ]);
-
-    $user = User::create([
+    // Store the User details
+    $request->user()->create([
       'name' => $request->name,
       'email' => $request->email,
       'password' => Hash::make($request->password),
