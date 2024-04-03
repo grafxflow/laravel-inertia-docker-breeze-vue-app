@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\UserUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Hash;
@@ -36,32 +37,18 @@ class UsersController extends Controller
   /**
    * Update the user information.
    */
-  public function update(Request $request): RedirectResponse
+  public function update(UserUpdateRequest $request): RedirectResponse
   {
-    // Rules for User details
-    $request->validate([
-      'name' => 'required|string|max:255',
-      'email' => 'required|email|unique:users,email,' . $request->user,
-      'password' => 'sometimes|nullable|confirmed|min:8',
-      'passwordConfirm' => 'sometimes|required_with:password|same:password',
-    ]);
-
-    // Update the User details
-    $user = User::where('id', $request->user)->update([
-      'name' => $request->name,
-      'email' => $request->email,
-    ]);
-
-    // Only add the password if not empty
-    if(!empty($request->password))
-    {
-      $user = User::where('id', $request->user)->update([
-        'password' => Hash::make($request->password),
-      ]);
+    // Removes password field if it's null
+    if (!$request->password) {
+      unset($request['password']);
     }
 
-    // Redirect to the User Edit page
-    return Redirect::route('users.edit', ['user' => $request->user]);
+    // Update the User details
+    $request->user()->update($request->all());
+
+    // Redirect to the User Index page
+    return Redirect::route('users.index');
   }
 
   /**
