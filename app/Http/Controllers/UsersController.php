@@ -2,114 +2,114 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Requests\UserUpdateRequest;
 use App\Http\Requests\UserStoreRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\UserUpdateRequest;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UsersController extends Controller
 {
-  /**
-   * Display the active users.
-   */
-  public function index(Request $request): Response
-  {
-    return Inertia::render('Users/Index', [
-      'users' => User::all(),
-    ]);
-  }
-
-  /**
-   * Edit the user account.
-   */
-  public function edit(Request $request): Response
-  {
-    return Inertia::render('Users/Edit', [
-      'user' => User::find($request->user),
-    ]);
-  }
-
-  /**
-   * Update the user information.
-   */
-  public function update(UserUpdateRequest $request): RedirectResponse
-  {
-    // Removes password field if it's null
-    if (!$request->password) {
-      unset($request['password']);
+    /**
+     * Display the active users.
+     */
+    public function index(Request $request): Response
+    {
+        return Inertia::render('Users/Index', [
+            'users' => User::all(),
+        ]);
     }
 
-    // Update the User details
-    User::find($request->user)->update($request->all());
+    /**
+     * Edit the user account.
+     */
+    public function edit(Request $request): Response
+    {
+        return Inertia::render('Users/Edit', [
+            'user' => User::find($request->user),
+        ]);
+    }
 
-    return Redirect::route('users.index');
-  }
+    /**
+     * Update the user information.
+     */
+    public function update(UserUpdateRequest $request): RedirectResponse
+    {
+        // Removes password field if it's null
+        if (! $request->password) {
+            unset($request['password']);
+        }
 
-  /**
-   * Delete the user account.
-   */
-  public function delete(Request $request): RedirectResponse
-  {
-    User::find($request->user)->delete();
+        // Update the User details
+        User::find($request->user)->update($request->all());
 
-    return Redirect::route('users.index');
-  }
+        return Redirect::route('users.index');
+    }
 
-  /**
-   * Create the user account.
-   */
-  public function create(): Response
-  {
-    return Inertia::render('Users/Create');
-  }
+    /**
+     * Delete the user account.
+     */
+    public function delete(Request $request): RedirectResponse
+    {
+        User::find($request->user)->delete();
 
-  /**
-   * Store the user account.
-   */
-  public function store(UserStoreRequest $request): RedirectResponse
-  {
-    // Store the User details
-    User::create([
-      'name' => $request->name,
-      'email' => $request->email,
-      'password' => Hash::make($request->password),
-    ]);
+        return Redirect::route('users.index');
+    }
 
-    return Redirect::route('users.index');
-  }
+    /**
+     * Create the user account.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('Users/Create');
+    }
 
-  /**
-   * Display deleted (Soft Delete) from users.
-   */
-  public function trashed(Request $request): Response
-  {
-    return Inertia::render('Users/Trashed', [
-      'users' => User::onlyTrashed()->get(),
-    ]);
-  }
+    /**
+     * Store the user account.
+     */
+    public function store(UserStoreRequest $request): RedirectResponse
+    {
+        // Store the User details
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
 
-  /**
-   * Destroy the user account.
-   */
-  public function destroy(Request $request): RedirectResponse
-  {
-    User::withTrashed()->find($request->user)->forcedelete();
+        return Redirect::route('users.index');
+    }
 
-    return Redirect::route('users.trashed');
-  }
+    /**
+     * Display deleted (Soft Delete) from users.
+     */
+    public function trashed(Request $request): Response
+    {
+        return Inertia::render('Users/Trashed', [
+            'users' => User::onlyTrashed()->get(),
+        ]);
+    }
 
-  /**
-   * Restore the trashed user.
-   */
-  public function restore(Request $request): RedirectResponse
-  {
-    User::withTrashed()->find($request->user)->restore();
+    /**
+     * Destroy the user account.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        User::withTrashed()->find($request->user)->forcedelete();
 
-    return Redirect::route('users.trashed');
-  }
+        return Redirect::route('users.trashed');
+    }
+
+    /**
+     * Restore the trashed user.
+     */
+    public function restore(Request $request): RedirectResponse
+    {
+        User::withTrashed()->find($request->user)->restore();
+
+        return Redirect::route('users.trashed');
+    }
 }
